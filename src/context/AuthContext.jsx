@@ -5,8 +5,8 @@ import {
   useEffect,
   useCallback,
 } from "react";
-import axios from "axios";
 import { TokenStore } from "../lib/tokenStore";
+import api from "../lib/axios";
 
 // 1. Buat Context
 const AuthContext = createContext(null);
@@ -15,6 +15,7 @@ const AuthContext = createContext(null);
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true); // cek sesi saat pertama load;
+
   // Cek apakah ada sesi aktif saat app pertama kali dibuka
   useEffect(() => {
     const restore = async () => {
@@ -25,12 +26,12 @@ export function AuthProvider({ children }) {
       try {
         // Coba refresh token untuk dapatkan access token baru
         const rfToken = TokenStore.getRefreshToken();
-        const { data } = await axios.post("/auth/refresh", {
+        const { data } = await api.post("/auth/refresh", {
           refreshToken: rfToken,
         });
         TokenStore.setAccessToken(data.data.accessToken);
         // Ambil data user
-        const { data: me } = await axios.get("/auth/me", {
+        const { data: me } = await api.get("/auth/me", {
           headers: { Authorization: `Bearer ${data.data.accessToken}` },
         });
         setUser(me.data);
@@ -44,7 +45,7 @@ export function AuthProvider({ children }) {
   }, []);
 
   const login = useCallback(async (email, password) => {
-    const { data } = await axios.post("/auth/login", { email, password });
+    const { data } = await api.post("/auth/login", { email, password });
     const { accessToken, refreshToken, user: userData } = data.data;
     TokenStore.setAccessToken(accessToken);
     TokenStore.setRefreshToken(refreshToken);
@@ -52,13 +53,13 @@ export function AuthProvider({ children }) {
   }, []);
 
   const register = useCallback(async (name, email, password) => {
-    await axios.post("/auth/register", { name, email, password });
+    await api.post("/auth/register", { name, email, password });
   }, []);
 
   const logout = useCallback(async () => {
     try {
       const rfToken = TokenStore.getRefreshToken();
-      await axios.post(
+      await api.post(
         "/auth/logout",
         { refreshToken: rfToken },
         {

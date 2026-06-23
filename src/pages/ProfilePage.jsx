@@ -9,6 +9,7 @@ export function ProfilePage() {
       month: "long",
       year: "numeric",
     });
+
   return (
     <div>
       <Navbar />

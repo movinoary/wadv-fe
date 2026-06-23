@@ -3,7 +3,7 @@ import { TokenStore } from "./tokenStore";
 
 // Instance utama untuk semua request API
 const api = axios.create({
-  baseURL: "/api/v1",
+  baseURL: "http://localhost:3005/api/v1",
   timeout: 10000,
   headers: { "Content-Type": "application/json" },
 });
